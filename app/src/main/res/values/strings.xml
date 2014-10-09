@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Lab6</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="placeholder_editText">Stock Symbol</string>
+    <string name="button_text">Load Stock Info</string>
+
+</resources>

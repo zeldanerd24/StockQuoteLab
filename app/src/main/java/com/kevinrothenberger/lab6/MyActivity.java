@@ -30,6 +30,8 @@ public class MyActivity extends Activity {
     TextView utc_time;
     TextView volume;
 
+    String stockSymbol;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,31 +75,40 @@ public class MyActivity extends Activity {
         load_stock_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                stockSymbol = symbol_input.getText().toString();
+                double price = -1;
                 Runnable runnable = new Runnable() {
                     @Override
                     public void run() {
-                        try {
-                            String sym = symbol_input.getText().toString();
+                        String sym = symbol_input.getText().toString();
+                        while(true) {
+                            try {
+                                //System.out.println(stockSymbol);
+                                //System.out.println("Updated Thread 1");
 
-                            URL url = new URL("http://finance.yahoo.com/webservice/v1/symbols/" + sym + "/quote?format=json");
-                            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"));
-                            String line;
-                            StringBuilder json = new StringBuilder();
-                            while ((line = in.readLine()) != null)
-                            {
-                                json.append(line);
-                                json.append("\n");
+                                if(!sym.equals(stockSymbol)){
+                                    break;
+                                }
+
+                                URL url = new URL("http://finance.yahoo.com/webservice/v1/symbols/" + sym + "/quote?format=json");
+                                BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"));
+                                String line;
+                                StringBuilder json = new StringBuilder();
+                                while ((line = in.readLine()) != null) {
+                                    json.append(line);
+                                    json.append("\n");
+                                }
+                                in.close();
+
+                                Message msg = handler.obtainMessage();
+                                Bundle bundle = new Bundle();
+                                bundle.putString("json", json.toString());
+                                msg.setData(bundle);
+                                handler.sendMessage(msg);
+                                Thread.sleep(10000);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                            in.close();
-
-                            Message msg = handler.obtainMessage();
-                            Bundle bundle = new Bundle();
-                            bundle.putString("json", json.toString());
-                            msg.setData(bundle);
-                            handler.sendMessage(msg);
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
                         }
                     }
                 };
@@ -105,5 +116,11 @@ public class MyActivity extends Activity {
                 thread.start();
             }
         });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        finish();
     }
 }
